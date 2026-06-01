@@ -318,7 +318,7 @@ function CadenciaPanel({ cadencia, onIniciar, onAvancar, onEncerrar }) {
 }
 
 // ── LeadModal
-function LeadModal({ lead, onClose, onSave, saving }) {
+function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
   const [form,    setForm]    = useState({ ...lead, tasks:[...(lead.tasks||[])], cadencia:lead.cadencia?{...lead.cadencia, historico:[...(lead.cadencia.historico||[])]}:null });
   const [newTask, setNewTask] = useState("");
   const [tab,     setTab]     = useState("info");
@@ -446,11 +446,14 @@ function LeadModal({ lead, onClose, onSave, saving }) {
             <CadenciaPanel cadencia={form.cadencia} onIniciar={iniciarCadencia} onAvancar={avancar} onEncerrar={encerrarCadencia} />
           )}
 
-          <div style={{ display:"flex", gap:10, justifyContent:"flex-end" }}>
-            <button onClick={onClose} style={btn("#eeeeee","#555")}>Cancelar</button>
-            <button onClick={()=>onSave(form)} disabled={saving} style={{ ...btn("#22c55e"), opacity:saving?0.7:1 }}>
-              {saving?"⏳ Salvando...":"💾 Salvar"}
-            </button>
+          <div style={{ display:"flex", gap:10, justifyContent:"space-between" }}>
+            <button onClick={()=>onDelete(form.id)} style={{ ...btn("#ffebee","#c62828"), fontSize:12 }}>🗑️ Excluir lead</button>
+            <div style={{ display:"flex", gap:10 }}>
+              <button onClick={onClose} style={btn("#eeeeee","#555")}>Cancelar</button>
+              <button onClick={()=>onSave(form)} disabled={saving} style={{ ...btn("#22c55e"), opacity:saving?0.7:1 }}>
+                {saving?"⏳ Salvando...":"💾 Salvar"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -507,6 +510,7 @@ export default function App() {
   const [selected,    setSelected]    = useState(null);
   const [search,      setSearch]      = useState("");
   const [filterStage, setFilterStage] = useState("Todos");
+  const [ordenar, setOrdenar]         = useState("data");
   const [filterCurso, setFilterCurso] = useState("Todos");
   const [showAdd,     setShowAdd]     = useState(false);
 
@@ -535,8 +539,18 @@ export default function App() {
     setSaving(false);
   };
 
+  const handleDelete = async (id) => {
+    if (!window.confirm("Tem certeza que deseja excluir este lead?")) return;
+    setLeads(ls => ls.filter(l => l.id !== id));
+    setSelected(null);
+    if (sheetUrl && sheetUrl !== "local") {
+      try { await fetch(sheetUrl, { method:"POST", body:JSON.stringify({ action:"delete", id }) }); }
+      catch { }
+    }
+  };
+
   const handleAdd = async (form) => {
-    const lead = { ...form, id:nextId++, stage:"Novo Lead", tasks:[], cadencia:null };
+    const lead = { ...form, id:nextId++ };
     setLeads(ls=>[lead,...ls]);
     setShowAdd(false);
     if (sheetUrl && sheetUrl !== "local") {
@@ -561,10 +575,11 @@ export default function App() {
       && (filterStage==="Todos" || l.stage===filterStage)
       && (filterCurso==="Todos" || l.curso===filterCurso);
   }).sort((a, b) => {
+    if (ordenar === "nome") return a.name.localeCompare(b.name, "pt-BR");
     const da = a.dataContato ? a.dataContato.replace(/-/g,"") : "0";
     const db = b.dataContato ? b.dataContato.replace(/-/g,"") : "0";
     return da.localeCompare(db);
-  }), [leads, search, filterStage, filterCurso]);
+  }), [leads, search, filterStage, filterCurso, ordenar]);
 
   const emAtraso  = leads.filter(l=>calcularAtraso(l.cadencia)>0).length;
   const syncIcon  = syncStatus==="syncing"?"⏳":syncStatus==="ok"?"🟢":syncStatus==="error"?"🔴":"";
@@ -608,6 +623,10 @@ export default function App() {
           <select value={filterCurso} onChange={e=>setFilterCurso(e.target.value)} style={{ ...inputStyle, width:"auto", flex:"0 0 auto", background:"#fff" }}>
             <option>Todos</option>{CURSOS.map(c=><option key={c}>{c}</option>)}
           </select>
+          <select value={ordenar} onChange={e=>setOrdenar(e.target.value)} style={{ ...inputStyle, width:"auto", flex:"0 0 auto", background:"#fff" }}>
+            <option value="data">↑ Data</option>
+            <option value="nome">A→Z Nome</option>
+          </select>
           <span style={{ fontSize:13, color:"#aaa", fontFamily:"'DM Mono', monospace" }}>{filtered.length} lead(s)</span>
         </div>
 
@@ -619,10 +638,9 @@ export default function App() {
           </div>
         )}
 
-        {selected && <LeadModal lead={selected} onClose={()=>setSelected(null)} onSave={handleSave} saving={saving} />}
-        {showAdd  && <LeadModal lead={{ id:0, name:"", phone:"", curso:"", stage:"Novo Lead", dataContato: (() => { const h = new Date(); return h.getFullYear()+"-"+String(h.getMonth()+1).padStart(2,"0")+"-"+String(h.getDate()).padStart(2,"0"); })(), notes:"", tasks:[], cadencia:null }} onClose={()=>setShowAdd(false)} onSave={handleAdd} saving={saving} />}
+        {selected && <LeadModal lead={selected} onClose={()=>setSelected(null)} onSave={handleSave} onDelete={handleDelete} saving={saving} />}
+        {showAdd  && <LeadModal lead={{ id:0, name:"", phone:"", curso:"", stage:"Novo Lead", dataContato: (() => { const h = new Date(); return h.getFullYear()+"-"+String(h.getMonth()+1).padStart(2,"0")+"-"+String(h.getDate()).padStart(2,"0"); })(), notes:"", tasks:[], cadencia:null }} onClose={()=>setShowAdd(false)} onSave={handleAdd} onDelete={()=>{}} saving={saving} />}
       </div>
     </>
   );
 }
-
