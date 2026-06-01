@@ -578,7 +578,9 @@ export default function App() {
     if (ordenar === "nome") return a.name.localeCompare(b.name, "pt-BR");
     const da = a.dataContato ? a.dataContato.replace(/-/g,"") : "0";
     const db = b.dataContato ? b.dataContato.replace(/-/g,"") : "0";
-    return da.localeCompare(db);
+    const porData = da.localeCompare(db);
+    if (porData !== 0) return porData;
+    return a.name.localeCompare(b.name, "pt-BR");
   }), [leads, search, filterStage, filterCurso, ordenar]);
 
   const emAtraso  = leads.filter(l=>calcularAtraso(l.cadencia)>0).length;
