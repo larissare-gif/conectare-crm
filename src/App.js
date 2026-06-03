@@ -84,7 +84,8 @@ const inputStyle  = { width:"100%", padding:"9px 12px", border:"1.5px solid #e8e
 const btn = (bg, color="#fff") => ({ background:bg, color, border:"none", borderRadius:8, padding:"9px 18px", fontWeight:700, cursor:"pointer", fontSize:13, fontFamily:"'DM Sans', sans-serif", display:"flex", alignItems:"center", gap:6 });
 
 function corCelula(status, tipo) {
-  if (status === "feito_respondeu" || status === "feito_nao_respondeu") return "#22c55e";
+  if (status === "feito_respondeu") return "#1b5e20";
+  if (status === "feito_nao_respondeu") return "#22c55e";
   if (status === "nao_feito")  return "#ef5350";
   if (status === "atual")      return ACTION_COLORS[tipo];
   return "#e8e8e8";
