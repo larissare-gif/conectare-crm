@@ -123,7 +123,7 @@ function LeadCard({ lead, onClick }) {
       {atraso > 0 && !encerrada && <div style={{ fontSize:11, color:"#ef5350", fontWeight:700, fontFamily:"'DM Mono', monospace", marginBottom:3 }}>⚠️ {atraso} passos em atraso</div>}
       {atraso === 0 && lead.cadencia && !encerrada && (() => { const d = dataProximoContato(lead.cadencia); return d ? <div style={{ fontSize:11, color:"#22c55e", fontWeight:600, fontFamily:"'DM Mono', monospace", marginBottom:3 }}>📅 Próximo contato: {d.split("-").reverse().join("/")}</div> : null; })()}
       {passoAtual && !encerrada && !lead.cadencia?.pausada && <div style={{ fontSize:11, fontWeight:700, fontFamily:"'DM Mono', monospace", color:ACTION_COLORS[passoAtual.tipo] }}>{ACTION_ICONS[passoAtual.tipo]} {labelPasso(passoAtual)}</div>}
-      {passoAtual && !encerrada && lead.cadencia?.pausada && !lead.cadencia?.encerradaManualmente && <div style={{ fontSize:11, color:"#888", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>⏸️ Cadência pausada</div>}
+      {passoAtual && !encerrada && lead.cadencia?.pausada && !lead.cadencia?.encerradaManualmente && <div style={{ fontSize:11, color:"#1565c0", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>⏸️ Cadência pausada</div>}
       {encerrada && !lead.cadencia?.encerradaManualmente && <div style={{ fontSize:11, color:"#1b5e20", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>✅ Cadência encerrada</div>}
       {lead.cadencia?.encerradaManualmente && <div style={{ fontSize:11, color:"#c62828", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>❌ Cadência encerrada</div>}
       {lead.cadencia && contatos > 0 && <div style={{ fontSize:11, color:"#1a1a1a", fontWeight:600, fontFamily:"'DM Mono', monospace", marginTop:3 }}>📊 {contatos} contatos realizados</div>}
@@ -256,11 +256,11 @@ function CadenciaPanel({ cadencia, onIniciar, onAvancar, onEncerrar, onReiniciar
       <CadenciaGrade cadencia={cadencia} />
 
       {cadencia?.pausada && !encerrada && !cadencia?.encerradaManualmente && (
-        <div style={{ background:"#f5f5f5", border:"1.5px solid #e0e0e0", borderRadius:10, padding:"14px 16px", marginBottom:4, display:"flex", alignItems:"center", gap:10 }}>
+        <div style={{ background:"#e3f2fd", border:"1.5px solid #90caf9", borderRadius:10, padding:"14px 16px", marginBottom:4, display:"flex", alignItems:"center", gap:10 }}>
           <span style={{ fontSize:20 }}>⏸️</span>
           <div>
-            <div style={{ fontWeight:700, fontSize:13, color:"#555" }}>Cadência pausada</div>
-            <div style={{ fontSize:12, color:"#aaa" }}>Mova o lead para Novo Lead ou Em Contato para retomar.</div>
+            <div style={{ fontWeight:700, fontSize:13, color:"#1565c0" }}>Cadência pausada</div>
+            <div style={{ fontSize:12, color:"#1e88e5" }}>Mova o lead para Novo Lead ou Em Contato para retomar.</div>
           </div>
         </div>
       )}
