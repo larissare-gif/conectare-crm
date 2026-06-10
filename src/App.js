@@ -333,7 +333,9 @@ function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
       if (v === "Contato Futuro" || v === "Fechado") {
         next.cadencia = { ...next.cadencia, pausada: true };
       } else if (v === "Perdido") {
-        next.cadencia = { ...next.cadencia, pausada: true, encerradaManualmente: true };
+        // Se já completou todos os passos, não marcar como encerrada manualmente
+        const jaCompleta = next.cadencia && next.cadencia.passo > TOTAL_PASSOS && !next.cadencia.encerradaManualmente;
+        next.cadencia = { ...next.cadencia, pausada: true, encerradaManualmente: jaCompleta ? false : true };
       } else if (v === "Novo Lead" || v === "Em Contato") {
         next.cadencia = { ...next.cadencia, pausada: false };
       }
