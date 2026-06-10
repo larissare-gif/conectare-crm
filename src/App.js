@@ -126,7 +126,7 @@ function LeadCard({ lead, onClick }) {
       {passoAtual && !encerrada && lead.cadencia?.pausada && !lead.cadencia?.encerradaManualmente && <div style={{ fontSize:11, color:"#1565c0", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>⏸️ Cadência pausada</div>}
       {encerrada && !lead.cadencia?.encerradaManualmente && <div style={{ fontSize:11, color:"#1b5e20", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>✅ Cadência encerrada</div>}
       {lead.cadencia?.encerradaManualmente && <div style={{ fontSize:11, color:"#c62828", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>❌ Cadência encerrada</div>}
-      {lead.cadencia && contatos > 0 && <div style={{ fontSize:11, color:"#1a1a1a", fontWeight:600, fontFamily:"'DM Mono', monospace", marginTop:3 }}>📊 {contatos} contatos realizados</div>}
+      {lead.cadencia && <div style={{ fontSize:11, color:"#1a1a1a", fontWeight:600, fontFamily:"'DM Mono', monospace", marginTop:3 }}>📊 {contatos} contatos realizados</div>}
     </div>
   );
 }
