@@ -124,8 +124,8 @@ function LeadCard({ lead, onClick }) {
       {atraso === 0 && lead.cadencia && !encerrada && (() => { const d = dataProximoContato(lead.cadencia); return d ? <div style={{ fontSize:11, color:"#22c55e", fontWeight:600, fontFamily:"'DM Mono', monospace", marginBottom:3 }}>📅 Próximo contato: {d.split("-").reverse().join("/")}</div> : null; })()}
       {passoAtual && !encerrada && !lead.cadencia?.pausada && <div style={{ fontSize:11, fontWeight:700, fontFamily:"'DM Mono', monospace", color:ACTION_COLORS[passoAtual.tipo] }}>{ACTION_ICONS[passoAtual.tipo]} {labelPasso(passoAtual)}</div>}
       {passoAtual && !encerrada && lead.cadencia?.pausada && !lead.cadencia?.encerradaManualmente && <div style={{ fontSize:11, color:"#888", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>⏸️ Cadência pausada</div>}
-      {encerrada && !lead.cadencia?.encerradaManualmente && <div style={{ fontSize:11, color:"#fb8c00", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>🏁 Cadência encerrada</div>}
-      {lead.cadencia?.encerradaManualmente && <div style={{ fontSize:11, color:"#c62828", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>✕ Cadência encerrada</div>}
+      {encerrada && !lead.cadencia?.encerradaManualmente && <div style={{ fontSize:11, color:"#1b5e20", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>✅ Cadência encerrada</div>}
+      {lead.cadencia?.encerradaManualmente && <div style={{ fontSize:11, color:"#c62828", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>❌ Cadência encerrada</div>}
       {lead.cadencia && contatos > 0 && <div style={{ fontSize:11, color:"#1a1a1a", fontWeight:600, fontFamily:"'DM Mono', monospace", marginTop:3 }}>📊 {contatos} contatos realizados</div>}
     </div>
   );
@@ -266,9 +266,10 @@ function CadenciaPanel({ cadencia, onIniciar, onAvancar, onEncerrar, onReiniciar
       )}
       {cadencia?.encerradaManualmente && (
         <div style={{ background:"#ffebee", border:"1.5px solid #ef9a9a", borderRadius:10, padding:"14px 16px", marginBottom:4, display:"flex", alignItems:"center", gap:10 }}>
-          <span style={{ fontSize:20 }}>✕</span>
+          <span style={{ fontSize:20 }}>❌</span>
           <div>
             <div style={{ fontWeight:700, fontSize:13, color:"#c62828" }}>Cadência encerrada</div>
+            <div style={{ fontSize:12, color:"#aaa" }}>Clique em Reiniciar para começar uma nova cadência.</div>
           </div>
         </div>
       )}
@@ -297,9 +298,9 @@ function CadenciaPanel({ cadencia, onIniciar, onAvancar, onEncerrar, onReiniciar
 
       {encerrada && (
         <div style={{ background:"#fff3e0", border:"1.5px solid #ffa000", borderRadius:10, padding:20, textAlign:"center" }}>
-          <div style={{ fontSize:28, marginBottom:8 }}>🏁</div>
-          <div style={{ fontWeight:700, fontSize:15, color:"#e65100", fontFamily:"'Syne', sans-serif" }}>Cadência encerrada</div>
-          <div style={{ fontSize:12, color:"#888", marginTop:6, lineHeight:1.6 }}>{TOTAL_PASSOS} tentativas em 14 dias.<br/>Considere mover para <b>Perdido</b> ou reiniciar.</div>
+          <div style={{ fontSize:28, marginBottom:8 }}>✅</div>
+          <div style={{ fontWeight:700, fontSize:15, color:"#1b5e20", fontFamily:"'Syne', sans-serif" }}>Cadência encerrada</div>
+          <div style={{ fontSize:12, color:"#888", marginTop:6, lineHeight:1.6 }}>{TOTAL_PASSOS} tentativas em 14 dias.<br/>Clique em Reiniciar para começar uma nova cadência.</div>
           <div style={{ display:"flex", gap:8, marginTop:14, justifyContent:"center" }}>
             <button onClick={onIniciar}  style={{ ...btn("#1e88e5"), fontSize:12, padding:"7px 16px" }}>🔄 Reiniciar</button>
             <button onClick={onEncerrar} style={{ ...btn("#e0e0e0","#555"), fontSize:12, padding:"7px 16px" }}>Arquivar</button>
