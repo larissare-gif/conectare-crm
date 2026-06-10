@@ -582,7 +582,18 @@ export default function App() {
   };
 
   const handleDrop = async (lead, stage) => {
-    const updated = { ...lead, stage };
+    let cadencia = lead.cadencia ? { ...lead.cadencia } : null;
+    if (cadencia) {
+      if (stage === "Contato Futuro" || stage === "Fechado") {
+        cadencia = { ...cadencia, pausada: true };
+      } else if (stage === "Perdido") {
+        const jaCompleta = cadencia.passo > TOTAL_PASSOS && !cadencia.encerradaManualmente;
+        cadencia = { ...cadencia, pausada: true, encerradaManualmente: jaCompleta ? false : true };
+      } else if (stage === "Novo Lead" || stage === "Em Contato") {
+        cadencia = { ...cadencia, pausada: false };
+      }
+    }
+    const updated = { ...lead, stage, cadencia };
     setLeads(ls=>ls.map(l=>l.id===lead.id?updated:l));
     if (sheetUrl && sheetUrl !== "local") {
       try { await apiSave(updated, sheetUrl); setSyncStatus("ok"); }
