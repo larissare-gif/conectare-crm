@@ -300,7 +300,7 @@ function CadenciaPanel({ cadencia, onIniciar, onAvancar, onEncerrar, onReiniciar
         <div style={{ background:"#fff3e0", border:"1.5px solid #ffa000", borderRadius:10, padding:20, textAlign:"center" }}>
           <div style={{ fontSize:28, marginBottom:8 }}>✅</div>
           <div style={{ fontWeight:700, fontSize:15, color:"#1b5e20", fontFamily:"'Syne', sans-serif" }}>Cadência encerrada</div>
-          <div style={{ fontSize:12, color:"#333", marginTop:6, lineHeight:1.6 }}>{TOTAL_PASSOS} tentativas em 14 dias.<br/>Clique em Reiniciar para começar uma nova cadência.</div>
+          <div style={{ fontSize:12, color:"#333", marginTop:6, lineHeight:1.6 }}>{contatos} contato(s) realizado(s) em 14 dias.<br/>Clique em Reiniciar para começar uma nova cadência.</div>
           <div style={{ display:"flex", gap:8, marginTop:14, justifyContent:"center" }}>
             <button onClick={onReiniciar} style={{ ...btn("#1e88e5"), fontSize:12, padding:"7px 16px" }}>🔄 Reiniciar</button>
           </div>
