@@ -260,7 +260,7 @@ function CadenciaPanel({ cadencia, onIniciar, onAvancar, onEncerrar, onReiniciar
           <span style={{ fontSize:20 }}>⏸️</span>
           <div>
             <div style={{ fontWeight:700, fontSize:13, color:"#1565c0" }}>Cadência pausada</div>
-            <div style={{ fontSize:12, color:"#1e88e5" }}>Mova o lead para Novo Lead ou Em Contato para retomar.</div>
+            <div style={{ fontSize:12, color:"#333" }}>Mova o lead para o estágio Novo Lead ou Em Contato para retomar.</div>
           </div>
         </div>
       )}
@@ -269,7 +269,7 @@ function CadenciaPanel({ cadencia, onIniciar, onAvancar, onEncerrar, onReiniciar
           <span style={{ fontSize:20 }}>❌</span>
           <div>
             <div style={{ fontWeight:700, fontSize:13, color:"#c62828" }}>Cadência encerrada</div>
-            <div style={{ fontSize:12, color:"#aaa" }}>Clique em Reiniciar para começar uma nova cadência.</div>
+            <div style={{ fontSize:12, color:"#333" }}>Clique em Reiniciar para começar uma nova cadência.</div>
           </div>
         </div>
       )}
@@ -302,8 +302,7 @@ function CadenciaPanel({ cadencia, onIniciar, onAvancar, onEncerrar, onReiniciar
           <div style={{ fontWeight:700, fontSize:15, color:"#1b5e20", fontFamily:"'Syne', sans-serif" }}>Cadência encerrada</div>
           <div style={{ fontSize:12, color:"#888", marginTop:6, lineHeight:1.6 }}>{TOTAL_PASSOS} tentativas em 14 dias.<br/>Clique em Reiniciar para começar uma nova cadência.</div>
           <div style={{ display:"flex", gap:8, marginTop:14, justifyContent:"center" }}>
-            <button onClick={onIniciar}  style={{ ...btn("#1e88e5"), fontSize:12, padding:"7px 16px" }}>🔄 Reiniciar</button>
-            <button onClick={onEncerrar} style={{ ...btn("#e0e0e0","#555"), fontSize:12, padding:"7px 16px" }}>Arquivar</button>
+            <button onClick={onIniciar} style={{ ...btn("#1e88e5"), fontSize:12, padding:"7px 16px" }}>🔄 Reiniciar</button>
           </div>
         </div>
       )}
