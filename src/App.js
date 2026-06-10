@@ -350,7 +350,8 @@ function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
   };
 
   const iniciarCadencia = () => {
-    update("cadencia", { passo:1, dataInicio: form.dataContato || new Date().toISOString().split("T")[0], historico:[] });
+    update("cadencia", { passo:1, dataInicio: form.dataContato || new Date().toISOString().split("T")[0], historico:[], pausada:false, encerradaManualmente:false });
+    if (form.stage === "Novo Lead") update("stage", "Em Contato");
   };
   const encerrarCadencia = () => {
     update("cadencia", { ...form.cadencia, encerradaManualmente: true, pausada: true });
