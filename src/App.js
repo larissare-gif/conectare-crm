@@ -365,7 +365,7 @@ function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
     const proximoPasso = p >= TOTAL_PASSOS ? TOTAL_PASSOS+1 : p+1;
     // Se completou todos os passos, move para Perdido
     if (p >= TOTAL_PASSOS) {
-      update("cadencia", { ...form.cadencia, passo: TOTAL_PASSOS+1, historico, pausada: false });
+      update("cadencia", { ...form.cadencia, passo: TOTAL_PASSOS+1, historico, pausada: true, encerradaManualmente: false });
       update("stage", "Perdido");
       return;
     }
