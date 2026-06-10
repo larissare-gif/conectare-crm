@@ -555,10 +555,13 @@ export default function App() {
     const atrasoB = calcularAtraso(b.cadencia);
     const temCadA = a.cadencia && a.cadencia.passo <= TOTAL_PASSOS;
     const temCadB = b.cadencia && b.cadencia.passo <= TOTAL_PASSOS;
-    // 1º: em atraso primeiro → nome A-Z
+    // 1º: em atraso primeiro → mais atrasado primeiro → nome A-Z
     if (atrasoA > 0 && atrasoB === 0) return -1;
     if (atrasoB > 0 && atrasoA === 0) return 1;
-    if (atrasoA > 0 && atrasoB > 0) return a.name.localeCompare(b.name, "pt-BR");
+    if (atrasoA > 0 && atrasoB > 0) {
+      if (atrasoB !== atrasoA) return atrasoB - atrasoA;
+      return a.name.localeCompare(b.name, "pt-BR");
+    }
     // 2º: cadência ativa em dia → próximo contato → nome A-Z
     if (temCadA && temCadB && atrasoA === 0 && atrasoB === 0) {
       const proxA = dataProximoContato(a.cadencia) || "9999";
