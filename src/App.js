@@ -387,7 +387,7 @@ function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
   return (
     <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.38)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:1000 }}
       onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
-      <div style={{ background:"#fff", borderRadius:18, width:620, maxHeight:"92vh", overflowY:"auto", boxShadow:"0 24px 64px rgba(0,0,0,0.22)", fontFamily:"'DM Sans', sans-serif" }}>
+      <div style={{ background:"#fff", borderRadius:18, width:"min(620px, 100vw)", maxWidth:"100vw", maxHeight:"92vh", overflowY:"auto", boxShadow:"0 24px 64px rgba(0,0,0,0.22)", fontFamily:"'DM Sans', sans-serif" }}>
 
         <div style={{ padding:"24px 28px 0", display:"flex", alignItems:"center", gap:14 }}>
           <Avatar name={form.name||"?"} />
