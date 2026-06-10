@@ -332,6 +332,8 @@ function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
     if (f === "stage" && next.cadencia) {
       if (v === "Contato Futuro" || v === "Fechado") {
         next.cadencia = { ...next.cadencia, pausada: true };
+      } else if (v === "Perdido") {
+        next.cadencia = { ...next.cadencia, pausada: true, encerradaManualmente: true };
       } else if (v === "Novo Lead" || v === "Em Contato") {
         next.cadencia = { ...next.cadencia, pausada: false };
       }
