@@ -124,7 +124,8 @@ function LeadCard({ lead, onClick }) {
       {atraso === 0 && lead.cadencia && !encerrada && (() => { const d = dataProximoContato(lead.cadencia); return d ? <div style={{ fontSize:11, color:"#22c55e", fontWeight:600, fontFamily:"'DM Mono', monospace", marginBottom:3 }}>📅 Próximo contato: {d.split("-").reverse().join("/")}</div> : null; })()}
       {passoAtual && !encerrada && !lead.cadencia?.pausada && <div style={{ fontSize:11, fontWeight:700, fontFamily:"'DM Mono', monospace", color:ACTION_COLORS[passoAtual.tipo] }}>{ACTION_ICONS[passoAtual.tipo]} {labelPasso(passoAtual)}</div>}
       {passoAtual && !encerrada && lead.cadencia?.pausada && <div style={{ fontSize:11, color:"#888", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>⏸️ Cadência pausada</div>}
-      {encerrada && <div style={{ fontSize:11, color:"#fb8c00", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>🏁 Cadência encerrada</div>}
+      {encerrada && !lead.cadencia?.encerradaManualmente && <div style={{ fontSize:11, color:"#fb8c00", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>🏁 Cadência encerrada</div>}
+      {lead.cadencia?.encerradaManualmente && <div style={{ fontSize:11, color:"#c62828", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>✕ Cadência encerrada manualmente</div>}
       {lead.cadencia && contatos > 0 && <div style={{ fontSize:11, color:"#1a1a1a", fontWeight:600, fontFamily:"'DM Mono', monospace", marginTop:3 }}>📊 {contatos} contatos realizados</div>}
     </div>
   );
@@ -201,7 +202,7 @@ function CadenciaGrade({ cadencia }) {
 }
 
 // ── CadenciaPanel
-function CadenciaPanel({ cadencia, onIniciar, onAvancar, onEncerrar }) {
+function CadenciaPanel({ cadencia, onIniciar, onAvancar, onEncerrar, onReiniciar }) {
   const encerrada  = cadencia && cadencia.passo > TOTAL_PASSOS;
   const passoAtual = cadencia && !encerrada ? getPasso(cadencia.passo) : null;
   const atraso     = calcularAtraso(cadencia);
@@ -212,7 +213,12 @@ function CadenciaPanel({ cadencia, onIniciar, onAvancar, onEncerrar }) {
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
         <label style={labelStyle}>📅 Follow-up</label>
         {!cadencia && <button onClick={onIniciar} style={{ ...btn("#1e88e5"), fontSize:12, padding:"6px 14px" }}>▶ Iniciar cadência</button>}
-        {cadencia && !encerrada && <button onClick={onEncerrar} style={{ ...btn("#e0e0e0","#555"), fontSize:12, padding:"6px 14px" }}>✕ Encerrar</button>}
+        {cadencia && !encerrada && (
+        <div style={{ display:"flex", gap:8 }}>
+          <button onClick={onReiniciar} style={{ ...btn("#fff3e0","#e65100"), fontSize:12, padding:"6px 14px" }}>🔄 Reiniciar</button>
+          <button onClick={onEncerrar} style={{ ...btn("#ffebee","#c62828"), fontSize:12, padding:"6px 14px" }}>✕ Encerrar manualmente</button>
+        </div>
+      )}
       </div>
 
       {/* Legenda */}
@@ -249,12 +255,21 @@ function CadenciaPanel({ cadencia, onIniciar, onAvancar, onEncerrar }) {
 
       <CadenciaGrade cadencia={cadencia} />
 
-      {cadencia?.pausada && !encerrada && (
+      {cadencia?.pausada && !encerrada && !cadencia?.encerradaManualmente && (
         <div style={{ background:"#f5f5f5", border:"1.5px solid #e0e0e0", borderRadius:10, padding:"14px 16px", marginBottom:4, display:"flex", alignItems:"center", gap:10 }}>
           <span style={{ fontSize:20 }}>⏸️</span>
           <div>
             <div style={{ fontWeight:700, fontSize:13, color:"#555" }}>Cadência pausada</div>
             <div style={{ fontSize:12, color:"#aaa" }}>Mova o lead para Novo Lead ou Em Contato para retomar.</div>
+          </div>
+        </div>
+      )}
+      {cadencia?.encerradaManualmente && (
+        <div style={{ background:"#ffebee", border:"1.5px solid #ef9a9a", borderRadius:10, padding:"14px 16px", marginBottom:4, display:"flex", alignItems:"center", gap:10 }}>
+          <span style={{ fontSize:20 }}>✕</span>
+          <div>
+            <div style={{ fontWeight:700, fontSize:13, color:"#c62828" }}>Cadência encerrada manualmente</div>
+            <div style={{ fontSize:12, color:"#aaa" }}>Histórico preservado. Clique em Reiniciar para começar uma nova cadência.</div>
           </div>
         </div>
       )}
@@ -285,7 +300,7 @@ function CadenciaPanel({ cadencia, onIniciar, onAvancar, onEncerrar }) {
         <div style={{ background:"#fff3e0", border:"1.5px solid #ffa000", borderRadius:10, padding:20, textAlign:"center" }}>
           <div style={{ fontSize:28, marginBottom:8 }}>🏁</div>
           <div style={{ fontWeight:700, fontSize:15, color:"#e65100", fontFamily:"'Syne', sans-serif" }}>Cadência encerrada</div>
-          <div style={{ fontSize:12, color:"#888", marginTop:6, lineHeight:1.6 }}>{TOTAL_PASSOS} tentativas em 4 semanas.<br/>Considere mover para <b>Perdido</b> ou reiniciar.</div>
+          <div style={{ fontSize:12, color:"#888", marginTop:6, lineHeight:1.6 }}>{TOTAL_PASSOS} tentativas em 14 dias.<br/>Considere mover para <b>Perdido</b> ou reiniciar.</div>
           <div style={{ display:"flex", gap:8, marginTop:14, justifyContent:"center" }}>
             <button onClick={onIniciar}  style={{ ...btn("#1e88e5"), fontSize:12, padding:"7px 16px" }}>🔄 Reiniciar</button>
             <button onClick={onEncerrar} style={{ ...btn("#e0e0e0","#555"), fontSize:12, padding:"7px 16px" }}>Arquivar</button>
@@ -334,7 +349,14 @@ function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
   const iniciarCadencia = () => {
     update("cadencia", { passo:1, dataInicio: form.dataContato || new Date().toISOString().split("T")[0], historico:[] });
   };
-  const encerrarCadencia = () => update("cadencia", null);
+  const encerrarCadencia = () => {
+    update("cadencia", { ...form.cadencia, encerradaManualmente: true, pausada: true });
+    update("stage", "Perdido");
+  };
+  const reiniciarCadencia = () => {
+    if (!window.confirm("Tem certeza? Isso vai apagar todos os contatos registrados na cadência.")) return;
+    update("cadencia", { passo:1, dataInicio: form.dataContato || new Date().toISOString().split("T")[0], historico:[], pausada:false, encerradaManualmente:false });
+  };
 
   const avancar = (status) => {
     const p         = form.cadencia.passo;
@@ -438,7 +460,7 @@ function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
           )}
 
           {tab === "cadencia" && (
-            <CadenciaPanel cadencia={form.cadencia} onIniciar={iniciarCadencia} onAvancar={avancar} onEncerrar={encerrarCadencia} />
+            <CadenciaPanel cadencia={form.cadencia} onIniciar={iniciarCadencia} onAvancar={avancar} onEncerrar={encerrarCadencia} onReiniciar={reiniciarCadencia} />
           )}
 
           <div style={{ display:"flex", gap:10, justifyContent:"space-between" }}>
