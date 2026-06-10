@@ -17,41 +17,17 @@ const ACTION_COLORS = { mensagem: "#1e88e5", audio: "#8e24aa", ligacao: "#fb8c00
 
 // ── Cadência: cada passo tem idx único (1-23), semana, dia, acao, tipo, diaRelativo
 // diaRelativo = quantos dias corridos desde o início a ação deve ocorrer (base 0)
-const CADENCIA = [
-  // Semana 1: 6 dias × 3 ações = passos 1-18
-  { idx:1,  semana:1, dia:1, acao:1, tipo:"mensagem", diaRelativo:0 },
-  { idx:2,  semana:1, dia:1, acao:2, tipo:"audio",    diaRelativo:0 },
-  { idx:3,  semana:1, dia:1, acao:3, tipo:"ligacao",  diaRelativo:0 },
-  { idx:4,  semana:1, dia:2, acao:1, tipo:"mensagem", diaRelativo:1 },
-  { idx:5,  semana:1, dia:2, acao:2, tipo:"audio",    diaRelativo:1 },
-  { idx:6,  semana:1, dia:2, acao:3, tipo:"ligacao",  diaRelativo:1 },
-  { idx:7,  semana:1, dia:3, acao:1, tipo:"mensagem", diaRelativo:2 },
-  { idx:8,  semana:1, dia:3, acao:2, tipo:"audio",    diaRelativo:2 },
-  { idx:9,  semana:1, dia:3, acao:3, tipo:"ligacao",  diaRelativo:2 },
-  { idx:10, semana:1, dia:4, acao:1, tipo:"mensagem", diaRelativo:3 },
-  { idx:11, semana:1, dia:4, acao:2, tipo:"audio",    diaRelativo:3 },
-  { idx:12, semana:1, dia:4, acao:3, tipo:"ligacao",  diaRelativo:3 },
-  { idx:13, semana:1, dia:5, acao:1, tipo:"mensagem", diaRelativo:4 },
-  { idx:14, semana:1, dia:5, acao:2, tipo:"audio",    diaRelativo:4 },
-  { idx:15, semana:1, dia:5, acao:3, tipo:"ligacao",  diaRelativo:4 },
-  { idx:16, semana:1, dia:6, acao:1, tipo:"mensagem", diaRelativo:5 },
-  { idx:17, semana:1, dia:6, acao:2, tipo:"audio",    diaRelativo:5 },
-  { idx:18, semana:1, dia:6, acao:3, tipo:"ligacao",  diaRelativo:5 },
-  // Semana 2: passos 19-20
-  { idx:19, semana:2, dia:1, acao:1, tipo:"mensagem", diaRelativo:7  },
-  { idx:20, semana:2, dia:2, acao:2, tipo:"audio",    diaRelativo:8  },
-  // Semana 3: passos 21-22
-  { idx:21, semana:3, dia:1, acao:1, tipo:"mensagem", diaRelativo:14 },
-  { idx:22, semana:3, dia:2, acao:2, tipo:"ligacao",  diaRelativo:15 },
-  // Semana 4: passo 23
-  { idx:23, semana:4, dia:1, acao:1, tipo:"mensagem", diaRelativo:21 },
-];
-const TOTAL_PASSOS = 23;
+// Dias da cadência: 1, 2, 4, 7, 10, 14 — cada um com 3 ações
+const DIAS_CADENCIA = [1, 2, 4, 7, 10, 14];
+const CADENCIA = DIAS_CADENCIA.flatMap((diaRelativo, di) => [
+  { idx: di*3+1, dia: di+1, diaNum: diaRelativo, acao:1, tipo:"mensagem", diaRelativo: diaRelativo-1 },
+  { idx: di*3+2, dia: di+1, diaNum: diaRelativo, acao:2, tipo:"audio",    diaRelativo: diaRelativo-1 },
+  { idx: di*3+3, dia: di+1, diaNum: diaRelativo, acao:3, tipo:"ligacao",  diaRelativo: diaRelativo-1 },
+]);
+const TOTAL_PASSOS = 18;
 
 function labelPasso(p) {
-  if (p.semana === 1) return `Semana 1 · Dia ${p.dia} · Ação ${p.acao}/3`;
-  const total = p.semana === 4 ? 1 : 2;
-  return `Semana ${p.semana} · Ação ${p.acao}/${total}`;
+  return `Dia ${p.diaNum} · Ação ${p.acao}/3`;
 }
 
 // ── Dado um passo idx, retorna o objeto da cadência
@@ -68,6 +44,16 @@ function diasDesde(dataStr) {
 }
 
 // ── Quantos passos estão atrasados (deveriam ter sido feitos mas ainda não foram)
+function dataProximoContato(cadencia) {
+  if (!cadencia || !cadencia.dataInicio || cadencia.passo > TOTAL_PASSOS) return null;
+  const passo = getPasso(cadencia.passo);
+  if (!passo) return null;
+  const [y,m,d] = cadencia.dataInicio.split("-").map(Number);
+  const inicio = new Date(y, m-1, d);
+  inicio.setDate(inicio.getDate() + passo.diaRelativo);
+  return inicio.getFullYear()+"-"+String(inicio.getMonth()+1).padStart(2,"0")+"-"+String(inicio.getDate()).padStart(2,"0");
+}
+
 function calcularAtraso(cadencia) {
   if (!cadencia || !cadencia.dataInicio || cadencia.passo > TOTAL_PASSOS) return 0;
   const dias = diasDesde(cadencia.dataInicio);
@@ -134,7 +120,8 @@ function LeadCard({ lead, onClick }) {
         <span style={{ fontSize:11, color:"#aaa", fontFamily:"'DM Mono', monospace" }}>{lead.dataContato ? lead.dataContato.split("-").reverse().join("/") : ""}</span>
       </div>
       {pendentes > 0 && <div style={{ fontSize:11, color:"#ffa000", fontWeight:600, fontFamily:"'DM Mono', monospace", marginBottom:3 }}>● {pendentes} tarefa(s) pendente(s)</div>}
-      {atraso > 0 && !encerrada && <div style={{ fontSize:11, color:"#ef5350", fontWeight:700, fontFamily:"'DM Mono', monospace", marginBottom:3 }}>⚠️ {atraso} passo(s) em atraso</div>}
+      {atraso > 0 && !encerrada && <div style={{ fontSize:11, color:"#ef5350", fontWeight:700, fontFamily:"'DM Mono', monospace", marginBottom:3 }}>⚠️ {atraso} passos em atraso</div>}
+      {atraso === 0 && lead.cadencia && !encerrada && (() => { const d = dataProximoContato(lead.cadencia); return d ? <div style={{ fontSize:11, color:"#1e88e5", fontWeight:600, fontFamily:"'DM Mono', monospace", marginBottom:3 }}>📅 Próximo contato: {d.split("-").reverse().join("/")}</div> : null; })()}
       {passoAtual && !encerrada && <div style={{ fontSize:11, fontWeight:700, fontFamily:"'DM Mono', monospace", color:ACTION_COLORS[passoAtual.tipo] }}>{ACTION_ICONS[passoAtual.tipo]} {labelPasso(passoAtual)}</div>}
       {encerrada && <div style={{ fontSize:11, color:"#fb8c00", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>🏁 Cadência encerrada</div>}
       {lead.cadencia && contatos > 0 && <div style={{ fontSize:11, color:"#1a1a1a", fontWeight:600, fontFamily:"'DM Mono', monospace", marginTop:3 }}>📊 {contatos} contatos realizados</div>}
@@ -267,7 +254,7 @@ function CadenciaPanel({ cadencia, onIniciar, onAvancar, onEncerrar }) {
           <span style={{ fontSize:20 }}>⚠️</span>
           <div>
             <div style={{ fontWeight:700, fontSize:13, color:"#e65100" }}>Cadência em atraso!</div>
-            <div style={{ fontSize:12, color:"#888" }}>{atraso} passo(s) não realizado(s) no prazo esperado.</div>
+            <div style={{ fontSize:12, color:"#888" }}>{atraso} passos não realizados no prazo esperado.</div>
           </div>
         </div>
       )}
@@ -377,7 +364,7 @@ function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
           <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4 }}>
             {passoInfo && (
               <div style={{ background:ACTION_COLORS[passoInfo.tipo]+"22", color:ACTION_COLORS[passoInfo.tipo], borderRadius:20, fontSize:11, fontWeight:700, padding:"4px 10px", fontFamily:"'DM Mono', monospace" }}>
-                {ACTION_ICONS[passoInfo.tipo]} S{passoInfo.semana} D{passoInfo.dia} · {passoInfo.acao}/{passoInfo.semana===1?3:passoInfo.semana===4?1:2}
+                {ACTION_ICONS[passoInfo.tipo]} Dia {passoInfo.diaNum} · {passoInfo.acao}/3
               </div>
             )}
             {atraso > 0 && <div style={{ background:"#fff3e0", color:"#e65100", borderRadius:20, fontSize:11, fontWeight:700, padding:"4px 10px", fontFamily:"'DM Mono', monospace" }}>⚠️ {atraso} em atraso</div>}
