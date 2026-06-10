@@ -174,40 +174,27 @@ function CadenciaGrade({ cadencia }) {
     return "pendente";
   }
 
-  const semanas = [
-    { semana:1, label:"SEMANA 1", dias: Array.from({length:6},(_,i)=>i+1) },
-    { semana:2, label:"SEMANA 2", dias:[1,2] },
-    { semana:3, label:"SEMANA 3", dias:[1,2] },
-    { semana:4, label:"SEMANA 4", dias:[1] },
-  ];
-
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:6, marginBottom:18 }}>
-      {semanas.map(({ semana, label, dias }) => (
-        <div key={semana}>
-          <div style={{ fontSize:11, fontWeight:700, color:"#aaa", fontFamily:"'DM Mono', monospace", margin: semana===1?"0 0 4px":"8px 0 4px" }}>{label}</div>
-          {dias.map(dia => {
-            const ps = CADENCIA.filter(p => p.semana===semana && p.dia===dia);
-            return (
-              <div key={dia} style={{ display:"flex", alignItems:"center", gap:6, marginBottom: semana===1?4:0 }}>
-                {semana===1 && <div style={{ fontSize:11, fontWeight:700, color:"#aaa", fontFamily:"'DM Mono', monospace", minWidth:42 }}>Dia {dia}</div>}
-                {semana!==1 && <div style={{ fontSize:11, fontWeight:700, color:"#aaa", fontFamily:"'DM Mono', monospace", minWidth:42 }}>Dia {dia}</div>}
-                {ps.map(p => {
-                  const status = statusCelula(p.idx);
-                  const bg  = corCelula(status, p.tipo);
-                  const col = status === "pendente" ? "#aaa" : "#fff";
-                  return (
-                    <div key={p.idx} title={labelPasso(p)} style={{ flex:1, background:bg, borderRadius:6, padding:"5px 4px", textAlign:"center", transition:"background 0.3s" }}>
-                      <div style={{ fontSize:13 }}>{ACTION_ICONS[p.tipo]}</div>
-                      <div style={{ fontSize:9, color:col, fontFamily:"'DM Mono', monospace", fontWeight:status==="atual"?700:400 }}>{ACTION_LABELS[p.tipo].slice(0,3)}</div>
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })}
-        </div>
-      ))}
+      {DIAS_CADENCIA.map((diaNum, di) => {
+        const ps = CADENCIA.filter(p => p.dia === di+1);
+        return (
+          <div key={di} style={{ display:"flex", alignItems:"center", gap:6 }}>
+            <div style={{ fontSize:11, fontWeight:700, color:"#aaa", fontFamily:"'DM Mono', monospace", minWidth:42 }}>Dia {diaNum}</div>
+            {ps.map(p => {
+              const status = statusCelula(p.idx);
+              const bg  = corCelula(status, p.tipo);
+              const col = status === "pendente" ? "#aaa" : "#fff";
+              return (
+                <div key={p.idx} title={labelPasso(p)} style={{ flex:1, background:bg, borderRadius:6, padding:"5px 4px", textAlign:"center", transition:"background 0.3s" }}>
+                  <div style={{ fontSize:13 }}>{ACTION_ICONS[p.tipo]}</div>
+                  <div style={{ fontSize:9, color:col, fontFamily:"'DM Mono', monospace", fontWeight:status==="atual"?700:400 }}>{ACTION_LABELS[p.tipo].slice(0,3)}</div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -477,9 +464,9 @@ function ConfigScreen({ onSave }) {
 
 // ── Leads de exemplo
 const LEADS_EXEMPLO = [
-  { id:1, name:"Ana Paula Souza",  phone:"+55 11 99123-4567", stage:"Novo Lead",  curso:"Técnico EAD",                  dataContato:"2026-05-28", notes:"Interesse no curso de Enfermagem.", tasks:[{id:1,text:"Enviar tabela de preços",done:false}], cadencia:{ passo:1, dataInicio:"2026-05-28", historico:[] } },
-  { id:2, name:"Carlos Mendonça",  phone:"+55 21 98765-0001", stage:"Em Contato", curso:"EJA",                          dataContato:"2026-05-01", notes:"Quer terminar o ensino médio.", tasks:[], cadencia:{ passo:21, dataInicio:"2026-05-01", historico:[{passo:1,status:"feito_nao_respondeu"},{passo:2,status:"feito_nao_respondeu"},{passo:3,status:"feito_nao_respondeu"},{passo:4,status:"feito_nao_respondeu"},{passo:5,status:"feito_nao_respondeu"},{passo:6,status:"feito_nao_respondeu"},{passo:7,status:"feito_nao_respondeu"},{passo:8,status:"feito_nao_respondeu"},{passo:9,status:"feito_nao_respondeu"},{passo:10,status:"feito_nao_respondeu"},{passo:11,status:"feito_nao_respondeu"},{passo:12,status:"feito_nao_respondeu"},{passo:13,status:"feito_nao_respondeu"},{passo:14,status:"feito_nao_respondeu"},{passo:15,status:"feito_nao_respondeu"},{passo:16,status:"feito_nao_respondeu"},{passo:17,status:"feito_nao_respondeu"},{passo:18,status:"feito_nao_respondeu"},{passo:19,status:"feito_nao_respondeu"},{passo:20,status:"feito_nao_respondeu"}] } },
-  { id:3, name:"Beatriz Lima",     phone:"+55 31 97654-3210", stage:"Novo Lead",  curso:"Certificação por Competência", dataContato:"2026-05-26", notes:"Já tem experiência, só precisa da certificação.", tasks:[{id:1,text:"Verificar documentação",done:true}], cadencia:{ passo:3, dataInicio:"2026-05-26", historico:[{passo:1,status:"feito_nao_respondeu"},{passo:2,status:"feito_nao_respondeu"}] } },
+  { id:1, name:"Ana Paula Souza",  phone:"+55 11 99123-4567", stage:"Novo Lead",  curso:"Técnico EAD",                  dataContato:"2026-06-01", notes:"Interesse no curso de Enfermagem.", tasks:[{id:1,text:"Enviar tabela de preços",done:false}], cadencia:{ passo:1, dataInicio:"2026-06-01", historico:[] } },
+  { id:2, name:"Carlos Mendonça",  phone:"+55 21 98765-0001", stage:"Em Contato", curso:"EJA",                          dataContato:"2026-05-25", notes:"Quer terminar o ensino médio.", tasks:[], cadencia:{ passo:7, dataInicio:"2026-05-25", historico:[{passo:1,status:"feito_nao_respondeu"},{passo:2,status:"feito_nao_respondeu"},{passo:3,status:"nao_feito"},{passo:4,status:"feito_nao_respondeu"},{passo:5,status:"feito_nao_respondeu"},{passo:6,status:"feito_respondeu"}] } },
+  { id:3, name:"Beatriz Lima",     phone:"+55 31 97654-3210", stage:"Novo Lead",  curso:"Certificação por Competência", dataContato:"2026-05-20", notes:"Já tem experiência, só precisa da certificação.", tasks:[{id:1,text:"Verificar documentação",done:true}], cadencia:{ passo:4, dataInicio:"2026-05-20", historico:[{passo:1,status:"feito_nao_respondeu"},{passo:2,status:"feito_nao_respondeu"},{passo:3,status:"feito_nao_respondeu"}] } },
   { id:4, name:"Rafael Torres",    phone:"+55 11 91234-5678", stage:"Fechado",    curso:"Técnico EAD",                  dataContato:"2026-05-10", notes:"Matriculado! Pagamento confirmado.", tasks:[], cadencia:null },
   { id:5, name:"Mariana Costa",    phone:"+55 11 99876-5432", stage:"Perdido",    curso:"EJA",                          dataContato:"2026-05-01", notes:"Não tem interesse no momento.", tasks:[], cadencia:null },
 ];
