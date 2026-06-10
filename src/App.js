@@ -45,7 +45,7 @@ function diasDesde(dataStr) {
 
 // ── Quantos passos estão atrasados (deveriam ter sido feitos mas ainda não foram)
 function dataProximoContato(cadencia) {
-  if (!cadencia || !cadencia.dataInicio || cadencia.passo > TOTAL_PASSOS) return null;
+  if (!cadencia || !cadencia.dataInicio || cadencia.passo > TOTAL_PASSOS || cadencia.pausada) return null;
   const passo = getPasso(cadencia.passo);
   if (!passo) return null;
   const [y,m,d] = cadencia.dataInicio.split("-").map(Number);
@@ -55,7 +55,7 @@ function dataProximoContato(cadencia) {
 }
 
 function calcularAtraso(cadencia) {
-  if (!cadencia || !cadencia.dataInicio || cadencia.passo > TOTAL_PASSOS) return 0;
+  if (!cadencia || !cadencia.dataInicio || cadencia.passo > TOTAL_PASSOS || cadencia.pausada) return 0;
   const dias = diasDesde(cadencia.dataInicio);
   // Quantos passos já deveriam ter ocorrido (diaRelativo <= dias)
   const deveriam = CADENCIA.filter(p => p.diaRelativo <= dias).length;
@@ -122,7 +122,8 @@ function LeadCard({ lead, onClick }) {
       {pendentes > 0 && <div style={{ fontSize:11, color:"#ffa000", fontWeight:600, fontFamily:"'DM Mono', monospace", marginBottom:3 }}>● {pendentes} tarefa(s) pendente(s)</div>}
       {atraso > 0 && !encerrada && <div style={{ fontSize:11, color:"#ef5350", fontWeight:700, fontFamily:"'DM Mono', monospace", marginBottom:3 }}>⚠️ {atraso} passos em atraso</div>}
       {atraso === 0 && lead.cadencia && !encerrada && (() => { const d = dataProximoContato(lead.cadencia); return d ? <div style={{ fontSize:11, color:"#22c55e", fontWeight:600, fontFamily:"'DM Mono', monospace", marginBottom:3 }}>📅 Próximo contato: {d.split("-").reverse().join("/")}</div> : null; })()}
-      {passoAtual && !encerrada && <div style={{ fontSize:11, fontWeight:700, fontFamily:"'DM Mono', monospace", color:ACTION_COLORS[passoAtual.tipo] }}>{ACTION_ICONS[passoAtual.tipo]} {labelPasso(passoAtual)}</div>}
+      {passoAtual && !encerrada && !lead.cadencia?.pausada && <div style={{ fontSize:11, fontWeight:700, fontFamily:"'DM Mono', monospace", color:ACTION_COLORS[passoAtual.tipo] }}>{ACTION_ICONS[passoAtual.tipo]} {labelPasso(passoAtual)}</div>}
+      {passoAtual && !encerrada && lead.cadencia?.pausada && <div style={{ fontSize:11, color:"#888", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>⏸️ Cadência pausada</div>}
       {encerrada && <div style={{ fontSize:11, color:"#fb8c00", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>🏁 Cadência encerrada</div>}
       {lead.cadencia && contatos > 0 && <div style={{ fontSize:11, color:"#1a1a1a", fontWeight:600, fontFamily:"'DM Mono', monospace", marginTop:3 }}>📊 {contatos} contatos realizados</div>}
     </div>
@@ -248,7 +249,16 @@ function CadenciaPanel({ cadencia, onIniciar, onAvancar, onEncerrar }) {
 
       <CadenciaGrade cadencia={cadencia} />
 
-      {passoAtual && (
+      {cadencia?.pausada && !encerrada && (
+        <div style={{ background:"#f5f5f5", border:"1.5px solid #e0e0e0", borderRadius:10, padding:"14px 16px", marginBottom:4, display:"flex", alignItems:"center", gap:10 }}>
+          <span style={{ fontSize:20 }}>⏸️</span>
+          <div>
+            <div style={{ fontWeight:700, fontSize:13, color:"#555" }}>Cadência pausada</div>
+            <div style={{ fontSize:12, color:"#aaa" }}>Mova o lead para Novo Lead ou Em Contato para retomar.</div>
+          </div>
+        </div>
+      )}
+      {passoAtual && !cadencia?.pausada && (
         <div style={{ background:"#fafafa", border:`2px solid ${ACTION_COLORS[passoAtual.tipo]}22`, borderLeft:`4px solid ${ACTION_COLORS[passoAtual.tipo]}`, borderRadius:10, padding:16 }}>
           <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
             <span style={{ fontSize:26 }}>{ACTION_ICONS[passoAtual.tipo]}</span>
@@ -304,6 +314,14 @@ function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
     if (f === "dataContato" && next.cadencia) {
       next.cadencia = { ...next.cadencia, dataInicio: v };
     }
+    // Se mudou estágio para Contato Futuro ou Fechado, pausa a cadência
+    if (f === "stage" && next.cadencia) {
+      if (v === "Contato Futuro" || v === "Fechado") {
+        next.cadencia = { ...next.cadencia, pausada: true };
+      } else if (v === "Novo Lead" || v === "Em Contato") {
+        next.cadencia = { ...next.cadencia, pausada: false };
+      }
+    }
     return next;
   });
 
@@ -321,10 +339,14 @@ function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
   const avancar = (status) => {
     const p         = form.cadencia.passo;
     const historico = [...(form.cadencia.historico||[]), { passo:p, status }];
-    if (status === "feito_respondeu") {
-      // Só marca como feito e avança, sem encerrar a cadência
+    const proximoPasso = p >= TOTAL_PASSOS ? TOTAL_PASSOS+1 : p+1;
+    // Se completou todos os passos, move para Perdido
+    if (p >= TOTAL_PASSOS) {
+      update("cadencia", { ...form.cadencia, passo: TOTAL_PASSOS+1, historico, pausada: false });
+      update("stage", "Perdido");
+      return;
     }
-    update("cadencia", { ...form.cadencia, passo: p >= TOTAL_PASSOS ? TOTAL_PASSOS+1 : p+1, historico });
+    update("cadencia", { ...form.cadencia, passo: proximoPasso, historico });
   };
 
   const passoInfo = form.cadencia && form.cadencia.passo <= TOTAL_PASSOS ? getPasso(form.cadencia.passo) : null;
