@@ -551,10 +551,27 @@ export default function App() {
       && (!filterDataDe  || (l.dataContato && l.dataContato >= filterDataDe))
       && (!filterDataAte || (l.dataContato && l.dataContato <= filterDataAte));
   }).sort((a, b) => {
+    const atrasoA = calcularAtraso(a.cadencia);
+    const atrasoB = calcularAtraso(b.cadencia);
+    const temCadA = a.cadencia && a.cadencia.passo <= TOTAL_PASSOS;
+    const temCadB = b.cadencia && b.cadencia.passo <= TOTAL_PASSOS;
+    // 1º: em atraso primeiro → nome A-Z
+    if (atrasoA > 0 && atrasoB === 0) return -1;
+    if (atrasoB > 0 && atrasoA === 0) return 1;
+    if (atrasoA > 0 && atrasoB > 0) return a.name.localeCompare(b.name, "pt-BR");
+    // 2º: cadência ativa em dia → próximo contato → nome A-Z
+    if (temCadA && temCadB && atrasoA === 0 && atrasoB === 0) {
+      const proxA = dataProximoContato(a.cadencia) || "9999";
+      const proxB = dataProximoContato(b.cadencia) || "9999";
+      if (proxA !== proxB) return proxA.localeCompare(proxB);
+      return a.name.localeCompare(b.name, "pt-BR");
+    }
+    if (temCadA && !temCadB) return -1;
+    if (temCadB && !temCadA) return 1;
+    // 3º: sem cadência → data contato → nome A-Z
     const da = a.dataContato ? a.dataContato.replace(/-/g,"") : "0";
     const db = b.dataContato ? b.dataContato.replace(/-/g,"") : "0";
-    const porData = da.localeCompare(db);
-    if (porData !== 0) return porData;
+    if (da !== db) return da.localeCompare(db);
     return a.name.localeCompare(b.name, "pt-BR");
   }), [leads, search, filterStage, filterCurso, filterDataDe, filterDataAte]);
 
