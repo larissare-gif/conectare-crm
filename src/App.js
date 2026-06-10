@@ -331,13 +331,13 @@ function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
     // Se mudou estágio para Contato Futuro ou Fechado, pausa a cadência
     if (f === "stage" && next.cadencia) {
       if (v === "Contato Futuro" || v === "Fechado") {
-        next.cadencia = { ...next.cadencia, pausada: true };
+        next.cadencia = { ...next.cadencia, pausada: true, encerradaManualmente: false };
       } else if (v === "Perdido") {
         // Se já completou todos os passos, não marcar como encerrada manualmente
         const jaCompleta = next.cadencia && next.cadencia.passo > TOTAL_PASSOS && !next.cadencia.encerradaManualmente;
         next.cadencia = { ...next.cadencia, pausada: true, encerradaManualmente: jaCompleta ? false : true };
       } else if (v === "Novo Lead" || v === "Em Contato") {
-        next.cadencia = { ...next.cadencia, pausada: false };
+        next.cadencia = { ...next.cadencia, pausada: false, encerradaManualmente: false };
       }
     }
     return next;
@@ -585,12 +585,12 @@ export default function App() {
     let cadencia = lead.cadencia ? { ...lead.cadencia } : null;
     if (cadencia) {
       if (stage === "Contato Futuro" || stage === "Fechado") {
-        cadencia = { ...cadencia, pausada: true };
+        cadencia = { ...cadencia, pausada: true, encerradaManualmente: false };
       } else if (stage === "Perdido") {
         const jaCompleta = cadencia.passo > TOTAL_PASSOS && !cadencia.encerradaManualmente;
         cadencia = { ...cadencia, pausada: true, encerradaManualmente: jaCompleta ? false : true };
       } else if (stage === "Novo Lead" || stage === "Em Contato") {
-        cadencia = { ...cadencia, pausada: false };
+        cadencia = { ...cadencia, pausada: false, encerradaManualmente: false };
       }
     }
     const updated = { ...lead, stage, cadencia };
