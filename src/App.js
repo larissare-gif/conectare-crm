@@ -20,9 +20,9 @@ const ACTION_COLORS = { mensagem: "#1e88e5", audio: "#8e24aa", ligacao: "#fb8c00
 // Dias da cadência: 1, 2, 4, 7, 10, 14 — cada um com 3 ações
 const DIAS_CADENCIA = [1, 2, 4, 7, 10, 14];
 const CADENCIA = DIAS_CADENCIA.flatMap((diaNum, di) => [
-  { idx: di*3+1, dia: di+1, diaNum, acao:1, tipo:"mensagem", diaRelativo: diaNum },
-  { idx: di*3+2, dia: di+1, diaNum, acao:2, tipo:"audio",    diaRelativo: diaNum },
-  { idx: di*3+3, dia: di+1, diaNum, acao:3, tipo:"ligacao",  diaRelativo: diaNum },
+  { idx: di*3+1, dia: di+1, diaNum, acao:1, tipo:"mensagem", diaRelativo: diaNum-1 },
+  { idx: di*3+2, dia: di+1, diaNum, acao:2, tipo:"audio",    diaRelativo: diaNum-1 },
+  { idx: di*3+3, dia: di+1, diaNum, acao:3, tipo:"ligacao",  diaRelativo: diaNum-1 },
 ]);
 const TOTAL_PASSOS = 18;
 
