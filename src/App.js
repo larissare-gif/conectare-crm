@@ -349,10 +349,26 @@ function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
     setNewTask("");
   };
 
-  const iniciarCadencia = () => {
-    update("cadencia", { passo:1, dataInicio: form.dataContato || new Date().toISOString().split("T")[0], historico:[], pausada:false, encerradaManualmente:false });
-    if (form.stage === "Novo Lead") update("stage", "Em Contato");
+  const [showIniciarModal, setShowIniciarModal] = useState(false);
+  const [dataInicioEscolhida, setDataInicioEscolhida] = useState("");
+
+  const abrirIniciarCadencia = () => {
+    // Data padrão = data de contato + 1 dia
+    const base = form.dataContato || new Date().toISOString().split("T")[0];
+    const [y,m,d] = base.split("-").map(Number);
+    const amanha = new Date(y, m-1, d+1);
+    const dataFormatada = amanha.getFullYear()+"-"+String(amanha.getMonth()+1).padStart(2,"0")+"-"+String(amanha.getDate()).padStart(2,"0");
+    setDataInicioEscolhida(dataFormatada);
+    setShowIniciarModal(true);
   };
+
+  const confirmarIniciarCadencia = () => {
+    update("cadencia", { passo:1, dataInicio: dataInicioEscolhida, historico:[], pausada:false, encerradaManualmente:false });
+    if (form.stage === "Novo Lead") update("stage", "Em Contato");
+    setShowIniciarModal(false);
+  };
+
+  const iniciarCadencia = abrirIniciarCadencia;
   const encerrarCadencia = () => {
     update("cadencia", { ...form.cadencia, encerradaManualmente: true, pausada: true });
     update("stage", "Perdido");
@@ -464,7 +480,24 @@ function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
           )}
 
           {tab === "cadencia" && (
-            <CadenciaPanel cadencia={form.cadencia} onIniciar={iniciarCadencia} onAvancar={avancar} onEncerrar={encerrarCadencia} onReiniciar={reiniciarCadencia} />
+            <>
+              <CadenciaPanel cadencia={form.cadencia} onIniciar={iniciarCadencia} onAvancar={avancar} onEncerrar={encerrarCadencia} onReiniciar={reiniciarCadencia} />
+              {showIniciarModal && (
+                <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.4)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:2000 }}>
+                  <div style={{ background:"#fff", borderRadius:16, padding:"28px 32px", width:340, boxShadow:"0 16px 48px rgba(0,0,0,0.2)", fontFamily:"'DM Sans', sans-serif" }}>
+                    <div style={{ fontWeight:700, fontSize:17, color:"#1a1a1a", fontFamily:"'Syne', sans-serif", marginBottom:6 }}>📅 Iniciar cadência</div>
+                    <div style={{ fontSize:13, color:"#888", marginBottom:18 }}>O Dia 1 será realizado na data abaixo. Você pode alterar se necessário.</div>
+                    <label style={labelStyle}>Data de início do Dia 1</label>
+                    <input type="date" value={dataInicioEscolhida} onChange={e=>setDataInicioEscolhida(e.target.value)}
+                      style={{ ...inputStyle, marginBottom:20 }} />
+                    <div style={{ display:"flex", gap:10, justifyContent:"flex-end" }}>
+                      <button onClick={()=>setShowIniciarModal(false)} style={btn("#eeeeee","#555")}>Cancelar</button>
+                      <button onClick={confirmarIniciarCadencia} style={btn("#1e88e5")}>▶ Iniciar</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
           <div style={{ display:"flex", gap:10, justifyContent:"space-between" }}>
