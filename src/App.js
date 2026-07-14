@@ -375,7 +375,7 @@ function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
   };
   const reiniciarCadencia = () => {
     if (!window.confirm("Tem certeza? Isso vai apagar todos os contatos registrados na cadência.")) return;
-    update("cadencia", { passo:1, dataInicio: form.dataContato || new Date().toISOString().split("T")[0], historico:[], pausada:false, encerradaManualmente:false });
+    abrirIniciarCadencia();
   };
 
   const avancar = (status) => {
