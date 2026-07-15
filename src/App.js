@@ -211,7 +211,7 @@ function CadenciaGrade({ cadencia }) {
 }
 
 // ── CadenciaPanel
-function CadenciaPanel({ cadencia, onIniciar, onAvancar, onEncerrar, onReiniciar }) {
+function CadenciaPanel({ cadencia, onIniciar, onAvancar, onEncerrar, onReiniciar, onEditarUltimo }) {
   const encerrada  = cadencia && cadencia.passo > TOTAL_PASSOS;
   const passoAtual = cadencia && !encerrada ? getPasso(cadencia.passo) : null;
   const atraso     = calcularAtraso(cadencia);
@@ -299,11 +299,39 @@ function CadenciaPanel({ cadencia, onIniciar, onAvancar, onEncerrar, onReiniciar
           <div style={{ fontSize:12, fontWeight:700, color:"#555", marginBottom:8, fontFamily:"'DM Mono', monospace" }}>REALIZOU ESTA AÇÃO?</div>
           <div style={{ display:"flex", gap:8 }}>
             <button onClick={()=>onAvancar("nao_feito")}          style={{ ...btn("#ef5350"), flex:1, justifyContent:"center", fontSize:12 }}>✗ Não</button>
-            <button onClick={()=>onAvancar("feito_nao_respondeu")} style={{ ...btn("#22c55e"), flex:1, justifyContent:"center", fontSize:12 }}>✓ Sim — não respondeu</button>
+            <button onClick={()=>onAvancar("feito_nao_respondeu")} style={{ ...btn("#22c55e"), flex:1, justifyContent:"center", fontSize:12 }}>✓ Sim</button>
             <button onClick={()=>onAvancar("feito_respondeu")}     style={{ ...btn("#1b5e20"), flex:1, justifyContent:"center", fontSize:12 }}>✓ Sim — respondeu! 🎉</button>
           </div>
         </div>
       )}
+
+      {/* Editar último passo */}
+      {cadencia && (cadencia.historico||[]).length > 0 && !encerrada && (() => {
+        const hist = cadencia.historico;
+        const ultimo = hist[hist.length - 1];
+        const passoUltimo = getPasso(ultimo.passo);
+        if (!passoUltimo) return null;
+        const statusLabel = ultimo.status === "feito_respondeu" ? "✓ Sim — respondeu! 🎉" : ultimo.status === "feito_nao_respondeu" ? "✓ Sim" : "✗ Não";
+        const statusCor = ultimo.status === "feito_respondeu" ? "#1b5e20" : ultimo.status === "feito_nao_respondeu" ? "#22c55e" : "#ef5350";
+        return (
+          <div style={{ marginTop:12, background:"#f8f8f8", border:"1px solid #eee", borderRadius:10, padding:"12px 14px" }}>
+            <div style={{ fontSize:11, fontWeight:700, color:"#aaa", fontFamily:"'DM Mono', monospace", marginBottom:8 }}>ÚLTIMO PASSO REGISTRADO</div>
+            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
+              <span style={{ fontSize:16 }}>{ACTION_ICONS[passoUltimo.tipo]}</span>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:13, fontWeight:700, color:"#333" }}>{labelPasso(passoUltimo)} — {ACTION_LABELS[passoUltimo.tipo]}</div>
+                <div style={{ fontSize:11, color:statusCor, fontWeight:600 }}>{statusLabel}</div>
+              </div>
+            </div>
+            <div style={{ fontSize:11, fontWeight:700, color:"#555", marginBottom:6, fontFamily:"'DM Mono', monospace" }}>EDITAR PARA:</div>
+            <div style={{ display:"flex", gap:8 }}>
+              <button onClick={()=>onEditarUltimo("nao_feito")}          style={{ ...btn("#ef5350"), flex:1, justifyContent:"center", fontSize:11 }}>✗ Não</button>
+              <button onClick={()=>onEditarUltimo("feito_nao_respondeu")} style={{ ...btn("#22c55e"), flex:1, justifyContent:"center", fontSize:11 }}>✓ Sim</button>
+              <button onClick={()=>onEditarUltimo("feito_respondeu")}     style={{ ...btn("#1b5e20"), flex:1, justifyContent:"center", fontSize:11 }}>✓ Respondeu! 🎉</button>
+            </div>
+          </div>
+        );
+      })()}
 
       {encerrada && (
         <div style={{ background:"#fff3e0", border:"1.5px solid #ffa000", borderRadius:10, padding:20, textAlign:"center" }}>
@@ -385,6 +413,13 @@ function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
   const reiniciarCadencia = () => {
     if (!window.confirm("Tem certeza? Isso vai apagar todos os contatos registrados na cadência.")) return;
     abrirIniciarCadencia();
+  };
+
+  const editarUltimo = (status) => {
+    const hist = [...(form.cadencia?.historico || [])];
+    if (hist.length === 0) return;
+    hist[hist.length - 1] = { ...hist[hist.length - 1], status };
+    update("cadencia", { ...form.cadencia, historico: hist });
   };
 
   const avancar = (status) => {
@@ -490,7 +525,7 @@ function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
 
           {tab === "cadencia" && (
             <>
-              <CadenciaPanel cadencia={form.cadencia} onIniciar={iniciarCadencia} onAvancar={avancar} onEncerrar={encerrarCadencia} onReiniciar={reiniciarCadencia} />
+              <CadenciaPanel cadencia={form.cadencia} onIniciar={iniciarCadencia} onAvancar={avancar} onEncerrar={encerrarCadencia} onReiniciar={reiniciarCadencia} onEditarUltimo={editarUltimo} />
               {showIniciarModal && (
                 <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.4)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:2000 }}>
                   <div style={{ background:"#fff", borderRadius:16, padding:"28px 32px", width:340, boxShadow:"0 16px 48px rgba(0,0,0,0.2)", fontFamily:"'DM Sans', sans-serif" }}>
