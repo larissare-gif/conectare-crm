@@ -58,7 +58,7 @@ function calcularAtraso(cadencia) {
   if (!cadencia || !cadencia.dataInicio || cadencia.passo > TOTAL_PASSOS || cadencia.pausada) return 0;
   const dias = diasDesde(cadencia.dataInicio);
   // Quantos passos já deveriam ter ocorrido (diaRelativo <= dias)
-  const deveriam = CADENCIA.filter(p => p.diaRelativo <= dias).length;
+  const deveriam = CADENCIA.filter(p => p.diaRelativo < dias).length;
   // Quantos já foram marcados (passo atual - 1 = passos concluídos)
   const feitos = cadencia.passo - 1;
   return Math.max(0, deveriam - feitos);
