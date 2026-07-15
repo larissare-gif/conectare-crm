@@ -121,7 +121,16 @@ function LeadCard({ lead, onClick }) {
       </div>
       {pendentes > 0 && <div style={{ fontSize:11, color:"#ffa000", fontWeight:600, fontFamily:"'DM Mono', monospace", marginBottom:3 }}>● {pendentes} tarefa(s) pendente(s)</div>}
       {atraso > 0 && !encerrada && <div style={{ fontSize:11, color:"#ef5350", fontWeight:700, fontFamily:"'DM Mono', monospace", marginBottom:3 }}>⚠️ {atraso} passos em atraso</div>}
-      {atraso === 0 && lead.cadencia && !encerrada && (() => { const d = dataProximoContato(lead.cadencia); return d ? <div style={{ fontSize:11, color:"#22c55e", fontWeight:600, fontFamily:"'DM Mono', monospace", marginBottom:3 }}>📅 Próximo contato: {d.split("-").reverse().join("/")}</div> : null; })()}
+      {atraso === 0 && lead.cadencia && !encerrada && (() => {
+        const d = dataProximoContato(lead.cadencia);
+        if (!d) return null;
+        const hoje = new Date();
+        const hojeStr = hoje.getFullYear()+"-"+String(hoje.getMonth()+1).padStart(2,"0")+"-"+String(hoje.getDate()).padStart(2,"0");
+        const ehHoje = d === hojeStr;
+        return ehHoje
+          ? <div style={{ fontSize:11, color:"#fb8c00", fontWeight:700, fontFamily:"'DM Mono', monospace", marginBottom:3 }}>🔔 Contatos a realizar hoje</div>
+          : <div style={{ fontSize:11, color:"#22c55e", fontWeight:600, fontFamily:"'DM Mono', monospace", marginBottom:3 }}>📅 Próximo contato: {d.split("-").reverse().join("/")}</div>;
+      })()}
       {passoAtual && !encerrada && !lead.cadencia?.pausada && <div style={{ fontSize:11, fontWeight:700, fontFamily:"'DM Mono', monospace", color:ACTION_COLORS[passoAtual.tipo] }}>{ACTION_ICONS[passoAtual.tipo]} {labelPasso(passoAtual)}</div>}
       {passoAtual && !encerrada && lead.cadencia?.pausada && !lead.cadencia?.encerradaManualmente && <div style={{ fontSize:11, color:"#1565c0", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>⏸️ Cadência pausada</div>}
       {encerrada && !lead.cadencia?.encerradaManualmente && <div style={{ fontSize:11, color:"#1b5e20", fontWeight:600, fontFamily:"'DM Mono', monospace" }}>✅ Cadência encerrada</div>}
