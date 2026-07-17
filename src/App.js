@@ -753,11 +753,6 @@ export default function App() {
               📊 {pctCadencia}% da cadência
             </div>
           )}
-          {pctCadencia !== null && (
-            <div style={{ background: pctCadencia >= 80 ? "#e8f5e9" : pctCadencia >= 50 ? "#fff8e1" : "#fce4ec", color: pctCadencia >= 80 ? "#1b5e20" : pctCadencia >= 50 ? "#f57f17" : "#c62828", borderRadius:20, fontSize:12, fontWeight:700, padding:"4px 12px", fontFamily:"'DM Mono', monospace" }}>
-              📊 {pctCadencia}% da cadência
-            </div>
-          )}
           {emAtraso > 0 && (
             <div style={{ background:"#fff3e0", color:"#e65100", borderRadius:20, fontSize:12, fontWeight:700, padding:"4px 12px", fontFamily:"'DM Mono', monospace" }}>
               ⚠️ {emAtraso} lead(s) em atraso
