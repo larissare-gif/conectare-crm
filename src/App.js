@@ -715,6 +715,20 @@ export default function App() {
   }), [leads, search, filterStage, filterCurso, filterDataDe, filterDataAte]);
 
   const emAtraso  = leads.filter(l=>calcularAtraso(l.cadencia)>0).length;
+
+  const pctCadencia = (() => {
+    const estagiosAtivos = ["Novo Lead", "Em Contato", "Contato Futuro"];
+    const leadsAtivos = leads.filter(l => estagiosAtivos.includes(l.stage) && l.cadencia && l.cadencia.passo <= TOTAL_PASSOS && !l.cadencia.pausada);
+    if (leadsAtivos.length === 0) return null;
+    const percentuais = leadsAtivos.map(l => {
+      const dias = diasDesde(l.cadencia.dataInicio);
+      const esperados = CADENCIA.filter(p => p.diaRelativo < dias).length;
+      if (esperados === 0) return 100;
+      const feitos = (l.cadencia.historico||[]).filter(h => h.status === "feito_respondeu" || h.status === "feito_nao_respondeu").length;
+      return Math.min(100, Math.round((feitos / esperados) * 100));
+    });
+    return Math.round(percentuais.reduce((a,b) => a+b, 0) / percentuais.length);
+  })();
   const syncIcon  = syncStatus==="syncing"?"⏳":syncStatus==="ok"?"🟢":syncStatus==="error"?"🔴":"";
   const syncLabel = syncStatus==="syncing"?"Sincronizando...":syncStatus==="ok"?"Salvo no Sheets":syncStatus==="error"?"Erro ao sincronizar":"";
 
@@ -734,6 +748,11 @@ export default function App() {
           <div style={{ fontFamily:"'Syne', sans-serif", fontWeight:800, fontSize:22, color:"#1a1a1a", letterSpacing:"-0.02em", display:"flex", alignItems:"center", gap:8 }}>
             <span style={{ fontSize:26 }}>📋</span> Conectare<span style={{ color:"#1e88e5" }}>CRM</span>
           </div>
+          {pctCadencia !== null && (
+            <div style={{ background: pctCadencia >= 80 ? "#e8f5e9" : pctCadencia >= 50 ? "#fff8e1" : "#fce4ec", color: pctCadencia >= 80 ? "#1b5e20" : pctCadencia >= 50 ? "#f57f17" : "#c62828", borderRadius:20, fontSize:12, fontWeight:700, padding:"4px 12px", fontFamily:"'DM Mono', monospace" }}>
+              📊 {pctCadencia}% da cadência
+            </div>
+          )}
           {pctCadencia !== null && (
             <div style={{ background: pctCadencia >= 80 ? "#e8f5e9" : pctCadencia >= 50 ? "#fff8e1" : "#fce4ec", color: pctCadencia >= 80 ? "#1b5e20" : pctCadencia >= 50 ? "#f57f17" : "#c62828", borderRadius:20, fontSize:12, fontWeight:700, padding:"4px 12px", fontFamily:"'DM Mono', monospace" }}>
               📊 {pctCadencia}% da cadência
