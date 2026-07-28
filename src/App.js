@@ -19,12 +19,17 @@ const ACTION_COLORS = { mensagem: "#1e88e5", audio: "#8e24aa", ligacao: "#fb8c00
 // diaRelativo = quantos dias corridos desde o início a ação deve ocorrer (base 0)
 // Dias da cadência: 1, 2, 4, 7, 10, 14 — cada um com 3 ações
 const DIAS_CADENCIA = [1, 2, 4, 7, 10, 14];
-const CADENCIA = DIAS_CADENCIA.flatMap((diaNum, di) => [
-  { idx: di*3+1, dia: di+1, diaNum, acao:1, tipo:"mensagem", diaRelativo: diaNum-1 },
-  { idx: di*3+2, dia: di+1, diaNum, acao:2, tipo:"audio",    diaRelativo: diaNum-1 },
-  { idx: di*3+3, dia: di+1, diaNum, acao:3, tipo:"ligacao",  diaRelativo: diaNum-1 },
-]);
-const TOTAL_PASSOS = 18;
+const DIAS_COM_LIGACAO = [7, 10, 14];
+const CADENCIA = DIAS_CADENCIA.flatMap((diaNum, di) => {
+  const temLigacao = DIAS_COM_LIGACAO.includes(diaNum);
+  const passos = [
+    { dia: di+1, diaNum, acao:1, tipo:"mensagem", diaRelativo: diaNum-1 },
+    { dia: di+1, diaNum, acao:2, tipo:"audio",    diaRelativo: diaNum-1 },
+  ];
+  if (temLigacao) passos.push({ dia: di+1, diaNum, acao:3, tipo:"ligacao", diaRelativo: diaNum-1 });
+  return passos.map((p, i) => ({ ...p, idx: DIAS_CADENCIA.slice(0,di).reduce((acc,d) => acc + (DIAS_COM_LIGACAO.includes(d)?3:2), 0) + i + 1 }));
+});
+const TOTAL_PASSOS = CADENCIA.length;
 
 function labelPasso(p) {
   return `Dia ${p.diaNum} · Ação ${p.acao}/3`;
@@ -716,6 +721,14 @@ export default function App() {
 
   const emAtraso  = leads.filter(l=>calcularAtraso(l.cadencia)>0).length;
 
+  const pctResposta = (() => {
+    const estagiosAtivos = ["Novo Lead", "Em Contato", "Contato Futuro"];
+    const leadsAtivos = leads.filter(l => estagiosAtivos.includes(l.stage) && l.cadencia);
+    if (leadsAtivos.length === 0) return null;
+    const responderam = leadsAtivos.filter(l => (l.cadencia.historico||[]).some(h => h.status === "feito_respondeu")).length;
+    return Math.round((responderam / leadsAtivos.length) * 100);
+  })();
+
   const pctCadencia = (() => {
     const estagiosAtivos = ["Novo Lead", "Em Contato", "Contato Futuro"];
     const leadsAtivos = leads.filter(l => estagiosAtivos.includes(l.stage) && l.cadencia && l.cadencia.passo <= TOTAL_PASSOS && !l.cadencia.pausada);
@@ -750,7 +763,12 @@ export default function App() {
           </div>
           {pctCadencia !== null && (
             <div style={{ background: pctCadencia >= 80 ? "#e8f5e9" : pctCadencia >= 50 ? "#fff8e1" : "#fce4ec", color: pctCadencia >= 80 ? "#1b5e20" : pctCadencia >= 50 ? "#f57f17" : "#c62828", borderRadius:20, fontSize:12, fontWeight:700, padding:"4px 12px", fontFamily:"'DM Mono', monospace" }}>
-              📊 {pctCadencia}% da cadência
+              📊 {pctCadencia}% cadência
+            </div>
+          )}
+          {pctResposta !== null && (
+            <div style={{ background: pctResposta >= 30 ? "#e8f5e9" : pctResposta >= 15 ? "#fff8e1" : "#fce4ec", color: pctResposta >= 30 ? "#1b5e20" : pctResposta >= 15 ? "#f57f17" : "#c62828", borderRadius:20, fontSize:12, fontWeight:700, padding:"4px 12px", fontFamily:"'DM Mono', monospace" }}>
+              💬 {pctResposta}% resposta
             </div>
           )}
           {emAtraso > 0 && (
