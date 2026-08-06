@@ -19,17 +19,18 @@ const ACTION_COLORS = { mensagem: "#1e88e5", audio: "#8e24aa", ligacao: "#fb8c00
 // diaRelativo = quantos dias corridos desde o início a ação deve ocorrer (base 0)
 // Dias da cadência: 1, 2, 4, 7, 10, 14 — cada um com 3 ações
 const DIAS_CADENCIA = [1, 2, 4, 7, 10, 14];
-const DIAS_COM_LIGACAO = [7, 10, 14];
-const CADENCIA = DIAS_CADENCIA.flatMap((diaNum, di) => {
-  const temLigacao = DIAS_COM_LIGACAO.includes(diaNum);
-  const passos = [
-    { dia: di+1, diaNum, acao:1, tipo:"mensagem", diaRelativo: diaNum-1 },
-    { dia: di+1, diaNum, acao:2, tipo:"audio",    diaRelativo: diaNum-1 },
-  ];
-  if (temLigacao) passos.push({ dia: di+1, diaNum, acao:3, tipo:"ligacao", diaRelativo: diaNum-1 });
-  return passos.map((p, i) => ({ ...p, idx: DIAS_CADENCIA.slice(0,di).reduce((acc,d) => acc + (DIAS_COM_LIGACAO.includes(d)?3:2), 0) + i + 1 }));
-});
+const CADENCIA = [
+  { idx:1,  dia:1, diaNum:1,  acao:1, tipo:"mensagem", diaRelativo:0  },
+  { idx:2,  dia:2, diaNum:2,  acao:1, tipo:"audio",    diaRelativo:1  },
+  { idx:3,  dia:3, diaNum:4,  acao:1, tipo:"mensagem", diaRelativo:3  },
+  { idx:4,  dia:4, diaNum:7,  acao:1, tipo:"audio",    diaRelativo:6  },
+  { idx:5,  dia:4, diaNum:7,  acao:2, tipo:"ligacao",  diaRelativo:6  },
+  { idx:6,  dia:5, diaNum:10, acao:1, tipo:"mensagem", diaRelativo:9  },
+  { idx:7,  dia:6, diaNum:14, acao:1, tipo:"audio",    diaRelativo:13 },
+  { idx:8,  dia:6, diaNum:14, acao:2, tipo:"ligacao",  diaRelativo:13 },
+];
 const TOTAL_PASSOS = CADENCIA.length;
+const DIAS_CADENCIA = [1, 2, 4, 7, 10, 14];
 
 function labelPasso(p) {
   return `Dia ${p.diaNum} · Ação ${p.acao}/3`;
@@ -482,6 +483,16 @@ function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
             <>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:14 }}>
                 <div>
+                  <label style={labelStyle}>Telefone</label>
+                  <input value={form.phone} onChange={e=>update("phone",e.target.value)} style={inputStyle} placeholder="+55 11 99999-0000" />
+                </div>
+                <div>
+                  <label style={labelStyle}>Data de contato</label>
+                  <input type="date" value={form.dataContato||""} onChange={e=>update("dataContato",e.target.value)} style={inputStyle} />
+                </div>
+              </div>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:14 }}>
+                <div>
                   <label style={labelStyle}>Estágio</label>
                   <select value={form.stage} onChange={e=>update("stage",e.target.value)} style={inputStyle}>
                     {STAGES.map(s=><option key={s}>{s}</option>)}
@@ -493,16 +504,6 @@ function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
                     <option value="">Selecione...</option>
                     {CURSOS.map(c=><option key={c}>{c}</option>)}
                   </select>
-                </div>
-              </div>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:14 }}>
-                <div>
-                  <label style={labelStyle}>Telefone</label>
-                  <input value={form.phone} onChange={e=>update("phone",e.target.value)} style={inputStyle} placeholder="+55 11 99999-0000" />
-                </div>
-                <div>
-                  <label style={labelStyle}>Data de contato</label>
-                  <input type="date" value={form.dataContato||""} onChange={e=>update("dataContato",e.target.value)} style={inputStyle} />
                 </div>
               </div>
               <div style={{ marginBottom:16 }}>
