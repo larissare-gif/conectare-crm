@@ -24,8 +24,8 @@ const CADENCIA = [
   { idx:2, diaNum:2,  acao:1, tipo:"audio",    diaRelativo:1  },
   { idx:3, diaNum:4,  acao:1, tipo:"mensagem", diaRelativo:3  },
   { idx:4, diaNum:7,  acao:1, tipo:"audio",    diaRelativo:6  },
-  { idx:5, diaNum:7,  acao:2, tipo:"ligacao",  diaRelativo:6  },
-  { idx:6, diaNum:10, acao:1, tipo:"mensagem", diaRelativo:9  },
+  { idx:5, diaNum:10, acao:1, tipo:"mensagem", diaRelativo:9  },
+  { idx:6, diaNum:10, acao:2, tipo:"ligacao",  diaRelativo:9  },
   { idx:7, diaNum:14, acao:1, tipo:"audio",    diaRelativo:13 },
   { idx:8, diaNum:14, acao:2, tipo:"ligacao",  diaRelativo:13 },
 ];
