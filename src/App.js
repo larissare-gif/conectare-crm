@@ -19,21 +19,22 @@ const ACTION_COLORS = { mensagem: "#1e88e5", audio: "#8e24aa", ligacao: "#fb8c00
 // diaRelativo = quantos dias corridos desde o início a ação deve ocorrer (base 0)
 // Dias da cadência: 1, 2, 4, 7, 10, 14 — cada um com 3 ações
 const DIAS_CADENCIA = [1, 2, 4, 7, 10, 14];
+const DIAS_CADENCIA = [1, 2, 4, 7, 10, 14];
 const CADENCIA = [
-  { idx:1,  dia:1, diaNum:1,  acao:1, tipo:"mensagem", diaRelativo:0  },
-  { idx:2,  dia:2, diaNum:2,  acao:1, tipo:"audio",    diaRelativo:1  },
-  { idx:3,  dia:3, diaNum:4,  acao:1, tipo:"mensagem", diaRelativo:3  },
-  { idx:4,  dia:4, diaNum:7,  acao:1, tipo:"audio",    diaRelativo:6  },
-  { idx:5,  dia:4, diaNum:7,  acao:2, tipo:"ligacao",  diaRelativo:6  },
-  { idx:6,  dia:5, diaNum:10, acao:1, tipo:"mensagem", diaRelativo:9  },
-  { idx:7,  dia:6, diaNum:14, acao:1, tipo:"audio",    diaRelativo:13 },
-  { idx:8,  dia:6, diaNum:14, acao:2, tipo:"ligacao",  diaRelativo:13 },
+  { idx:1, diaNum:1,  acao:1, tipo:"mensagem", diaRelativo:0  },
+  { idx:2, diaNum:2,  acao:1, tipo:"audio",    diaRelativo:1  },
+  { idx:3, diaNum:4,  acao:1, tipo:"mensagem", diaRelativo:3  },
+  { idx:4, diaNum:7,  acao:1, tipo:"audio",    diaRelativo:6  },
+  { idx:5, diaNum:7,  acao:2, tipo:"ligacao",  diaRelativo:6  },
+  { idx:6, diaNum:10, acao:1, tipo:"mensagem", diaRelativo:9  },
+  { idx:7, diaNum:14, acao:1, tipo:"audio",    diaRelativo:13 },
+  { idx:8, diaNum:14, acao:2, tipo:"ligacao",  diaRelativo:13 },
 ];
 const TOTAL_PASSOS = CADENCIA.length;
-const DIAS_CADENCIA = [1, 2, 4, 7, 10, 14];
 
 function labelPasso(p) {
-  return `Dia ${p.diaNum} · Ação ${p.acao}/3`;
+  const totalAcoes = CADENCIA.filter(c => c.diaNum === p.diaNum).length;
+  return `Dia ${p.diaNum} · Ação ${p.acao}/${totalAcoes}`;
 }
 
 // ── Dado um passo idx, retorna o objeto da cadência
@@ -194,7 +195,7 @@ function CadenciaGrade({ cadencia }) {
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:6, marginBottom:18 }}>
       {DIAS_CADENCIA.map((diaNum, di) => {
-        const ps = CADENCIA.filter(p => p.dia === di+1);
+        const ps = CADENCIA.filter(p => p.diaNum === diaNum);
         return (
           <div key={di} style={{ display:"flex", alignItems:"center", gap:6 }}>
             <div style={{ fontSize:11, fontWeight:700, color:"#aaa", fontFamily:"'DM Mono', monospace", minWidth:42 }}>Dia {diaNum}</div>
