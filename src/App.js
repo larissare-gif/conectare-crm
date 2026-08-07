@@ -19,7 +19,6 @@ const ACTION_COLORS = { mensagem: "#1e88e5", audio: "#8e24aa", ligacao: "#fb8c00
 // diaRelativo = quantos dias corridos desde o início a ação deve ocorrer (base 0)
 // Dias da cadência: 1, 2, 4, 7, 10, 14 — cada um com 3 ações
 const DIAS_CADENCIA = [1, 2, 4, 7, 10, 14];
-const DIAS_CADENCIA = [1, 2, 4, 7, 10, 14];
 const CADENCIA = [
   { idx:1, diaNum:1,  acao:1, tipo:"mensagem", diaRelativo:0  },
   { idx:2, diaNum:2,  acao:1, tipo:"audio",    diaRelativo:1  },
