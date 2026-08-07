@@ -298,7 +298,7 @@ function CadenciaPanel({ cadencia, onIniciar, onAvancar, onEncerrar, onReiniciar
                 {labelPasso(passoAtual)} — {ACTION_LABELS[passoAtual.tipo]}
               </div>
               <div style={{ fontSize:11, color:"#aaa" }}>
-                Passo {cadencia.passo} de {TOTAL_PASSOS} · {TOTAL_PASSOS - cadencia.passo} restantes
+                Passo {cadencia.passo} de {TOTAL_PASSOS} · {TOTAL_PASSOS - cadencia.passo} restante(s)
                 {cadencia.dataInicio ? ` · Iniciado em ${(() => { const [y,m,d]=cadencia.dataInicio.split("-"); return `${d}/${m}/${y}`; })()}` : ""}
               </div>
             </div>
@@ -466,7 +466,7 @@ function LeadModal({ lead, onClose, onSave, onDelete, saving }) {
           <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4 }}>
             {passoInfo && (
               <div style={{ background:ACTION_COLORS[passoInfo.tipo]+"22", color:ACTION_COLORS[passoInfo.tipo], borderRadius:20, fontSize:11, fontWeight:700, padding:"4px 10px", fontFamily:"'DM Mono', monospace" }}>
-                {ACTION_ICONS[passoInfo.tipo]} Dia {passoInfo.diaNum} · {passoInfo.acao}/3
+                {ACTION_ICONS[passoInfo.tipo]} Dia {passoInfo.diaNum} · {passoInfo.acao}/{CADENCIA.filter(c=>c.diaNum===passoInfo.diaNum).length}
               </div>
             )}
             {atraso > 0 && <div style={{ background:"#fff3e0", color:"#e65100", borderRadius:20, fontSize:11, fontWeight:700, padding:"4px 10px", fontFamily:"'DM Mono', monospace" }}>⚠️ {atraso} em atraso</div>}
